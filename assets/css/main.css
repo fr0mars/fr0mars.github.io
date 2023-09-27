@@ -2972,7 +2972,6 @@ input, select, textarea {
 		background-attachment: fixed;
 		background-position: center center;
 		background-size: cover;
-		box-shadow: 0 0.25em 0.5em 0 rgba(0, 0, 0, 0.25);
 		height: 100vh;
 		overflow: hidden;
 		position: relative;
@@ -3377,7 +3376,6 @@ input, select, textarea {
 
 	#header {
 		background: rgba(39, 40, 51, 0.965);
-		box-shadow: 0 0 0.25em 0 rgba(0, 0, 0, 0.25);
 		cursor: default;
 		height: 3.5em;
 		left: 0;
@@ -3457,7 +3455,6 @@ input, select, textarea {
 		background-image: url("../../images/banner.jpg");
 		background-position: center center;
 		background-size: cover;
-		box-shadow: 0 0.25em 0.5em 0 rgba(0, 0, 0, 0.25);
 		min-height: 100vh;
 		position: relative;
 		text-align: center;

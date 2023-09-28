@@ -2187,7 +2187,7 @@ input, select, textarea {
 	}
 
 		header.major:after {
-			background: #39c088;
+			background: #0a3a58;
 			content: '';
 			display: inline-block;
 			height: 0.2em;
@@ -2524,7 +2524,6 @@ input, select, textarea {
 			position: absolute;
 			left: 0;
 			top: 0;
-			background-image: url("images/overlay.png");
 			width: 100%;
 			height: 100%;
 			z-index: 1;
@@ -3058,7 +3057,6 @@ input, select, textarea {
 		}
 
 		.spotlight:before {
-			background-image: url("images/overlay.png");
 			content: '';
 			display: block;
 			height: 100%;
@@ -3512,10 +3510,10 @@ input, select, textarea {
 			#banner .content .image {
 				border-radius: 120%;
 				display: inline-block;
-				height: 18em;
+				height: 16em;
 				margin-left: 3em;
 				vertical-align: middle;
-				width: 18em;
+				width: 17em;
 			}
 
 				#banner .content .image img {
@@ -3929,7 +3927,7 @@ input, select, textarea {
 					}
 
 					#titleBar .toggle:before {
-						background: #e44c65;
+						background: #0a3a58;
 						color: rgba(255, 255, 255, 0.5);
 						content: '\f0c9';
 						display: block;

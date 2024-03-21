@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<title>Kalmar CTF 2024 - Crypto | Matteo {fr0mars} Ahouanto&#39;s blog</title>
+<meta charset="utf-8">
+<meta name="generator" content="Hugo 0.92.2" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://fr0mars.github.io/css/index.css">
+<link rel="canonical" href="https://fr0mars.github.io/posts/kalmar2024/">
+<link rel="alternate" type="application/rss+xml" href="" title="Matteo {fr0mars} Ahouanto&#39;s blog">
+
+<header>
+  
+    <a href="https://fr0mars.github.io/" class="title">Matteo {fr0mars} Ahouanto&#39;s blog</a>
+  
+  
+</header>
+
+<article>
+  <header>
+    <h1>Kalmar CTF 2024 - Crypto</h1>
+    <time datetime="2024-03-21T11:22:39&#43;01:00">March 21, 2024</time>
+  </header>
+  <p>I participated KalmarCTF 2024 with team LSE (<a href="https://ctftime.org/team/757">https://ctftime.org/team/757</a>) and managed to do two crypto challenges with the help of my teammates : Cracking the Casino and Re-Cracking The Casino.</p>
+<h2 id="cracking-the-casino">Cracking The Casino</h2>
+<p>We are given two source files for this challenge : casino.py and Pedersen-commitments.py.</p>
+<p>casino.py:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">
+<span style="color:#75715e">#!/usr/bin/python3 </span>
+<span style="color:#f92672">from</span> Pedersen_commitments <span style="color:#f92672">import</span> gen, commit, verify
+
+
+<span style="color:#75715e"># I want to host a trustworthy online casino! </span>
+<span style="color:#75715e"># To implement blackjack and craps in a trustworthy way i need verifiable dice and cards!</span>
+<span style="color:#75715e"># I&#39;ve used information theoretic commitments to prevent players from cheating.</span>
+<span style="color:#75715e"># Can you audit these functionalities for me ?</span>
+
+<span style="color:#f92672">from</span> random <span style="color:#f92672">import</span> randint
+<span style="color:#75715e"># Verifiable Dice roll</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">roll_dice</span>(pk):
+    roll <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">6</span>)
+    comm, r <span style="color:#f92672">=</span> commit(pk,roll)
+    <span style="color:#66d9ef">return</span> comm, roll, r
+
+<span style="color:#75715e"># verifies a dice roll</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check_dice</span>(pk,comm,guess,r):
+    res <span style="color:#f92672">=</span> verify(pk,comm, r, int(guess))
+    <span style="color:#66d9ef">return</span> res
+
+<span style="color:#75715e"># verifiable random card:</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw_card</span>(pk):
+    idx <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">51</span>)
+    <span style="color:#75715e"># clubs spades diamonds hearts</span>
+    suits <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;CSDH&#34;</span>
+    values <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;234567890JQKA&#34;</span>
+    value <span style="color:#f92672">=</span> values[idx<span style="color:#f92672">%</span><span style="color:#ae81ff">13</span>]
+    suit <span style="color:#f92672">=</span> suits[idx<span style="color:#f92672">//</span><span style="color:#ae81ff">13</span>]
+    card <span style="color:#f92672">=</span> value <span style="color:#f92672">+</span> suit
+    comm, r <span style="color:#f92672">=</span> commit(pk, int(card<span style="color:#f92672">.</span>encode()<span style="color:#f92672">.</span>hex(),<span style="color:#ae81ff">16</span>))
+    <span style="color:#66d9ef">return</span> comm, card, r
+
+<span style="color:#75715e"># take a card (as two chars, fx 4S = 4 of spades) and verifies it was the committed card</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check_card</span>(pk, comm, guess, r):
+    res <span style="color:#f92672">=</span> verify(pk, comm, r, int(guess<span style="color:#f92672">.</span>encode()<span style="color:#f92672">.</span>hex(),<span style="color:#ae81ff">16</span>))
+    <span style="color:#66d9ef">return</span> res
+
+
+<span style="color:#75715e"># Debug testing values for larger values</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">debug_test</span>(pk):
+    dbg <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">2</span><span style="color:#f92672">**</span><span style="color:#ae81ff">32</span><span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>)
+    comm, r <span style="color:#f92672">=</span> commit(pk,dbg)
+    <span style="color:#66d9ef">return</span> comm, dbg, r
+
+<span style="color:#75715e"># verify debug values</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check_dbg</span>(pk,comm,guess,r):
+    res <span style="color:#f92672">=</span> verify(pk,comm, r, int(guess))
+    <span style="color:#66d9ef">return</span> res
+
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">audit</span>():
+    print(<span style="color:#e6db74">&#34;Welcome to my (beta test) Casino!&#34;</span>)
+    q,g,h <span style="color:#f92672">=</span> gen()
+    pk <span style="color:#f92672">=</span> q,g,h
+    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;public key for Pedersen Commitment Scheme is:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">q = </span><span style="color:#e6db74">{</span>q<span style="color:#e6db74">}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">g = </span><span style="color:#e6db74">{</span>g<span style="color:#e6db74">}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">h = </span><span style="color:#e6db74">{</span>h<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+    chosen <span style="color:#f92672">=</span> input(<span style="color:#e6db74">&#34;what would you like to play?</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[D]ice</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[C]ards&#34;</span>)
+    
+    <span style="color:#66d9ef">if</span> chosen<span style="color:#f92672">.</span>lower() <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;d&#34;</span>:
+        game <span style="color:#f92672">=</span> roll_dice
+        verif <span style="color:#f92672">=</span> check_dice
+    <span style="color:#66d9ef">elif</span> chosen<span style="color:#f92672">.</span>lower() <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;c&#34;</span>:
+        game <span style="color:#f92672">=</span> draw_card
+        verif <span style="color:#f92672">=</span> check_card
+    <span style="color:#66d9ef">else</span>:
+        game <span style="color:#f92672">=</span> debug_test
+        verif <span style="color:#f92672">=</span> check_dbg
+
+    correct <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    <span style="color:#75715e"># If you can guess the committed values more than i&#39;d expect, then </span>
+    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1337</span>):
+        <span style="color:#66d9ef">if</span> correct <span style="color:#f92672">==</span> <span style="color:#ae81ff">100</span>:
+            print(<span style="color:#e6db74">&#34;Oh wow, you broke my casino??!? Thanks so much for finding this before launch so i don&#39;t lose all my money to cheaters!&#34;</span>)
+            <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;flag.txt&#34;</span>,<span style="color:#e6db74">&#34;r&#34;</span>) <span style="color:#66d9ef">as</span> f:
+                flag <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>read()
+            print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;here&#39;s that flag you wanted, you earned it! </span><span style="color:#e6db74">{</span>flag<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+            exit()
+
+        comm, v, r <span style="color:#f92672">=</span> game(pk)
+        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Commitment: </span><span style="color:#e6db74">{</span>comm<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+        g <span style="color:#f92672">=</span> input(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Are you able to guess the value? [Y]es/[N]o&#39;</span>)
+        <span style="color:#66d9ef">if</span> g<span style="color:#f92672">.</span>lower() <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;n&#34;</span>:
+            print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;commited value was </span><span style="color:#e6db74">{</span>v<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+            print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;randomness used was </span><span style="color:#e6db74">{</span>r<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+            print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;verifies = </span><span style="color:#e6db74">{</span>verif(pk,comm,v,r)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+        <span style="color:#66d9ef">elif</span> g<span style="color:#f92672">.</span>lower() <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;y&#34;</span>:
+            guess <span style="color:#f92672">=</span> input(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;whats your guess?&#39;</span>)
+            <span style="color:#66d9ef">if</span> verif(pk, comm, guess, r):
+                correct <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+                print(<span style="color:#e6db74">&#34;Oh wow! well done!&#34;</span>)
+            <span style="color:#66d9ef">else</span>:
+                print(<span style="color:#e6db74">&#34;That&#39;s not right... Why are you wasting my time if you haven&#39;t broken anything?&#34;</span>)
+                exit()
+
+    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Guess my system is secure then! Lets go ahead with the launch!&#39;</span>)
+    exit()
+
+<span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+    audit()
+</code></pre></div><p>Pedersen-commitments.py:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#f92672">from</span> Crypto.Util.number <span style="color:#f92672">import</span> getStrongPrime
+<span style="color:#f92672">from</span> Crypto.Random.random <span style="color:#f92672">import</span> randint
+
+<span style="color:#75715e">## Implementation of Pedersen Commitment Scheme</span>
+<span style="color:#75715e">## Computationally binding, information theoreticly hiding</span>
+
+<span style="color:#75715e"># Generate public key for Pedersen Commitments</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">gen</span>():
+    q <span style="color:#f92672">=</span> getStrongPrime(<span style="color:#ae81ff">1024</span>)
+    
+    g <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">1</span>,q<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+    s <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">1</span>,q<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+    h <span style="color:#f92672">=</span> pow(g,s,q)
+
+    <span style="color:#66d9ef">return</span> q,g,h
+
+<span style="color:#75715e"># Create Pedersen Commitment to message x</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">commit</span>(pk, m):
+    q, g, h <span style="color:#f92672">=</span> pk
+    r <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">1</span>,q<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+
+    comm <span style="color:#f92672">=</span> pow(g,m,q) <span style="color:#f92672">*</span> pow(h,r,q)
+    comm <span style="color:#f92672">%=</span> q
+
+    <span style="color:#66d9ef">return</span> comm,r
+
+<span style="color:#75715e"># Verify Pedersen Commitment to message x, with randomness r</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">verify</span>(param, c, r, x):
+    q, g, h <span style="color:#f92672">=</span> param
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> (x <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">and</span> x <span style="color:#f92672">&lt;</span> q):
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+    <span style="color:#66d9ef">return</span> c <span style="color:#f92672">==</span> (pow(g,x,q) <span style="color:#f92672">*</span> pow(h,r,q)) <span style="color:#f92672">%</span> q
+</code></pre></div><p>The goal of this challenge was to be able to predict the right commitment 100 times out of 1337 without failing. To do this we first chose to reduce the number of possible commitments to 6 by only playing the dice game .
+With this the commitment could only be g^(m+rs) mod q with m in [1,6]. Then we needed to have more information about m to be able to predict its value . #TODO</p>
+
+</article>
+
+
+
+</html>

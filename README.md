@@ -1,2 +1,2 @@
 # fr0mars.github.io
-blog
+My blog

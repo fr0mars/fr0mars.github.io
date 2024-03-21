@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title> Blog of fr0mars</title>
+    <title>Fr0mars&#39; Blog</title>
     <link>https://fr0mars.github.io/</link>
-    <description>Recent content on  Blog of fr0mars</description>
+    <description>Recent content on Fr0mars&#39; Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 21 Mar 2024 11:22:39 +0100</lastBuildDate><atom:link href="https://fr0mars.github.io/index.xml" rel="self" type="application/rss+xml" />

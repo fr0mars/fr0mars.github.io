@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Matteo {fr0mars} Ahouanto&#39;s blog</title>
+    <title> Blog of fr0mars</title>
     <link>https://fr0mars.github.io/</link>
-    <description>Recent content on Matteo {fr0mars} Ahouanto&#39;s blog</description>
+    <description>Recent content on  Blog of fr0mars</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 21 Mar 2024 11:22:39 +0100</lastBuildDate><atom:link href="https://fr0mars.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About Me</title>
+      <link>https://fr0mars.github.io/about/</link>
+      <pubDate>Thu, 21 Mar 2024 12:00:00 +0000</pubDate>
+      
+      <guid>https://fr0mars.github.io/about/</guid>
+      <description>Hi! My name is Matteo Ahouanto. I am currently a CS student at EPITA and exchange student at Chulalongkorn University.
+I regularly play CTFs on my free time (mostly on cryptography) with the LSE team.
+Hobbies I like to practice indoor or outdoor bouldering and I also enjoy hiking whenever I get the chance to do some.
+Random Things   My Cryptohack profile. I am learning the different fields of Cryptography and this is the platform where I mainly practice outside of CTFs</description>
+    </item>
+    
     <item>
       <title>Kalmar CTF 2024 - Crypto</title>
       <link>https://fr0mars.github.io/posts/kalmar2024/</link>
@@ -25,7 +37,7 @@ casino.py:
       <pubDate>Thu, 21 Mar 2024 10:48:44 +0100</pubDate>
       
       <guid>https://fr0mars.github.io/posts/init/</guid>
-      <description>I will be posting there Writeups of CTF challenges or maybe write about topics that i find interesting</description>
+      <description>Hello there! I will be posting on this blog writeups of CTF challenges and maybe write about topics that I find interesting.</description>
     </item>
     
   </channel>

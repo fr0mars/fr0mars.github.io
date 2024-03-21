@@ -20,7 +20,7 @@
     <h1>Kalmar CTF 2024 - Crypto</h1>
     <time datetime="2024-03-21T11:22:39&#43;01:00">March 21, 2024</time>
   </header>
-  <p>I participated KalmarCTF 2024 with team LSE (<a href="https://ctftime.org/team/757">https://ctftime.org/team/757</a>) and managed to do two crypto challenges with the help of my teammates : Cracking the Casino and Re-Cracking The Casino.</p>
+  <p>I participated to the KalmarCTF 2024 with team LSE (<a href="https://ctftime.org/team/757">https://ctftime.org/team/757</a>) and managed to do two crypto challenges with the help of my teammates : Cracking the Casino and Re-Cracking The Casino.</p>
 <h2 id="cracking-the-casino">Cracking The Casino</h2>
 <p>We are given two source files for this challenge : casino.py and Pedersen-commitments.py.</p>
 <p>casino.py:</p>
@@ -159,6 +159,81 @@
     <span style="color:#66d9ef">return</span> c <span style="color:#f92672">==</span> (pow(g,x,q) <span style="color:#f92672">*</span> pow(h,r,q)) <span style="color:#f92672">%</span> q
 </code></pre></div><p>The goal of this challenge was to be able to predict the right commitment 100 times out of 1337 without failing. To do this we first chose to reduce the number of possible commitments to 6 by only playing the dice game .
 With this the commitment could only be g^(m+rs) mod q with m in [1,6]. Then we needed to have more information about m to be able to predict its value . #TODO</p>
+<h3 id="solve-script">Solve Script</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">
+<span style="color:#f92672">from</span> pwn <span style="color:#f92672">import</span> remote
+<span style="color:#f92672">from</span> sage.all <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+
+r <span style="color:#f92672">=</span> remote(<span style="color:#e6db74">&#34;chal-kalmarc.tf&#34;</span>, <span style="color:#ae81ff">9</span>)
+a <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>recv(<span style="color:#ae81ff">2048</span>)<span style="color:#f92672">.</span>decode()<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;=&#39;</span>)
+q <span style="color:#f92672">=</span> int(a[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)[<span style="color:#ae81ff">0</span>])
+g <span style="color:#f92672">=</span> int(a[<span style="color:#ae81ff">2</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)[<span style="color:#ae81ff">0</span>])
+h <span style="color:#f92672">=</span> int(a[<span style="color:#ae81ff">3</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)[<span style="color:#ae81ff">0</span>])
+G <span style="color:#f92672">=</span> GF(q)
+g <span style="color:#f92672">=</span> G(g)
+order <span style="color:#f92672">=</span> q <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1234</span>):
+    <span style="color:#66d9ef">while</span> order <span style="color:#f92672">%</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">and</span> g<span style="color:#f92672">**</span>(order <span style="color:#f92672">//</span> i) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+        order <span style="color:#f92672">//=</span> i
+
+<span style="color:#66d9ef">assert</span> g<span style="color:#f92672">**</span>order <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>
+print(<span style="color:#e6db74">&#34;estimate order:&#34;</span>, order)
+e <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+<span style="color:#66d9ef">if</span> order <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+    half_order <span style="color:#f92672">=</span> order <span style="color:#f92672">//</span> <span style="color:#ae81ff">2</span>
+<span style="color:#66d9ef">else</span>:
+    e <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+    print(<span style="color:#e6db74">&#34;No half order :(&#34;</span>)
+<span style="color:#66d9ef">if</span> order <span style="color:#f92672">%</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+    third_order <span style="color:#f92672">=</span> order <span style="color:#f92672">//</span> <span style="color:#ae81ff">3</span>
+<span style="color:#66d9ef">else</span>:
+    e <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+    print(<span style="color:#e6db74">&#34;No third order :(&#34;</span>)
+<span style="color:#66d9ef">if</span> e:
+    exit(<span style="color:#ae81ff">1</span>)
+
+r<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;d&#39;</span>)
+correct_guesses <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+<span style="color:#66d9ef">while</span> <span style="color:#ae81ff">1</span>:
+    temp <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>recv()
+    <span style="color:#66d9ef">if</span> correct_guesses<span style="color:#f92672">==</span><span style="color:#ae81ff">100</span>:
+        print(temp)
+    commitment <span style="color:#f92672">=</span> int((temp<span style="color:#f92672">.</span>decode()<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;:&#39;</span>)[<span style="color:#ae81ff">1</span>])<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)[<span style="color:#ae81ff">0</span>])
+    commitment <span style="color:#f92672">=</span> G(commitment)
+    even<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+    odd<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+    multhree<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+    <span style="color:#66d9ef">if</span> commitment<span style="color:#f92672">**</span>half_order <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+        even<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+    <span style="color:#66d9ef">else</span>:
+        odd<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+    <span style="color:#66d9ef">if</span> commitment<span style="color:#f92672">**</span>third_order <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+        multhree <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+    guess <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    <span style="color:#66d9ef">if</span> multhree:
+        <span style="color:#66d9ef">if</span> even:
+            guess <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>
+        <span style="color:#66d9ef">else</span>:
+            guess <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+    <span style="color:#66d9ef">if</span> guess:
+        print(<span style="color:#e6db74">&#34;current guess: &#34;</span>, guess)
+        r<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;y&#39;</span>)
+        print(r<span style="color:#f92672">.</span>recv())
+        r<span style="color:#f92672">.</span>sendline(str(guess)<span style="color:#f92672">.</span>encode())
+        print(r<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>))
+        correct_guesses<span style="color:#f92672">+=</span><span style="color:#ae81ff">1</span>
+        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;currently </span><span style="color:#e6db74">{</span>correct_guesses<span style="color:#e6db74">}</span><span style="color:#e6db74"> correct guesses out of </span><span style="color:#e6db74">{</span>i<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+    <span style="color:#66d9ef">else</span>:
+        print(<span style="color:#e6db74">&#34;could not guess&#34;</span>)
+        r<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;n&#39;</span>)
+        r<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)
+        r<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)
+        r<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)
+    i<span style="color:#f92672">+=</span><span style="color:#ae81ff">1</span>
+
+</code></pre></div><h2 id="re-cracking-the-casino">Re-Cracking The Casino</h2>
+<p>#TODO</p>
 
 </article>
 

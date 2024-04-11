@@ -94,6 +94,39 @@ print(long_to_bytes(pow(c1,d1,p1<span style="color:#f92672">*</span>q1))) <span 
 
 </code></pre></div><p>And then we had our complete flag :</p>
 <pre tabindex="0"><code>utflag{oh_no_it_didnt_work_&lt;/3_i_guess_i_can_just_use_standard_libraries_in_the_future}
+</code></pre><h2 id="anti-dcode">Anti Dcode</h2>
+<blockquote>
+<p>I&rsquo;ve heard that everyone just uses dcode.fr to solve all of their crypto problems. Shameful, really.</p>
+</blockquote>
+<blockquote>
+<p>This is really just a basic Caesar cipher, with a few extra random characters on either side of the flag. Dcode can handle that, right? &gt;:)</p>
+</blockquote>
+<p>This challenge was just about doing a caesar decrypt on the right amount of shift on the flag that was somewhere in the data given. So as the data given was big i tried to find an occurence of a shifted &ldquo;utflag{&rdquo; because the flag was going to start by this string:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;data_from_the_challenge&#34;</span>
+
+alphabet <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#e6db74">&#39;c&#39;</span>, <span style="color:#e6db74">&#39;d&#39;</span>, <span style="color:#e6db74">&#39;e&#39;</span>, <span style="color:#e6db74">&#39;f&#39;</span>, <span style="color:#e6db74">&#39;g&#39;</span>, <span style="color:#e6db74">&#39;h&#39;</span>, <span style="color:#e6db74">&#39;i&#39;</span>, <span style="color:#e6db74">&#39;j&#39;</span>, <span style="color:#e6db74">&#39;k&#39;</span>, <span style="color:#e6db74">&#39;l&#39;</span>, <span style="color:#e6db74">&#39;m&#39;</span>, <span style="color:#e6db74">&#39;n&#39;</span>, <span style="color:#e6db74">&#39;o&#39;</span>,<span style="color:#e6db74">&#39;p&#39;</span>, <span style="color:#e6db74">&#39;q&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>, <span style="color:#e6db74">&#39;s&#39;</span>, <span style="color:#e6db74">&#39;t&#39;</span>, <span style="color:#e6db74">&#39;u&#39;</span>, <span style="color:#e6db74">&#39;v&#39;</span>, <span style="color:#e6db74">&#39;w&#39;</span>, <span style="color:#e6db74">&#39;x&#39;</span>, <span style="color:#e6db74">&#39;y&#39;</span>, <span style="color:#e6db74">&#39;z&#39;</span>]
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">caesar_list</span>(s):
+    res <span style="color:#f92672">=</span> []
+    <span style="color:#66d9ef">for</span> shift <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">26</span>):
+        temp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+        <span style="color:#66d9ef">for</span> char <span style="color:#f92672">in</span> s:
+            <span style="color:#66d9ef">if</span> char <span style="color:#f92672">&gt;=</span><span style="color:#e6db74">&#39;a&#39;</span> <span style="color:#f92672">and</span> char<span style="color:#f92672">&lt;=</span><span style="color:#e6db74">&#39;z&#39;</span>:
+                char <span style="color:#f92672">=</span> alphabet[(alphabet<span style="color:#f92672">.</span>index(char) <span style="color:#f92672">+</span> shift) <span style="color:#f92672">%</span> <span style="color:#ae81ff">26</span>]
+            temp <span style="color:#f92672">+=</span> char
+        res<span style="color:#f92672">.</span>append(temp)
+    <span style="color:#66d9ef">return</span> res
+
+variations <span style="color:#f92672">=</span> caesar_list(<span style="color:#e6db74">&#34;utflag{&#34;</span>)
+
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(variations)):
+    <span style="color:#66d9ef">if</span> variations[i] <span style="color:#f92672">in</span> text:
+        print(i)
+        <span style="color:#66d9ef">break</span>
+</code></pre></div><p>And this found an 8 times shifted &ldquo;utflag{&ldquo;which was &ldquo;cbntio{&rdquo;. Then I just found the string corresponding to the flag in the data :</p>
+<pre tabindex="0"><code>cbntio{zqx_lkwlm}
+</code></pre><p>and applied a shift of -8 to recover the flag :</p>
+<pre tabindex="0"><code>utflag{rip_dcode}
 </code></pre>
 </article>
 

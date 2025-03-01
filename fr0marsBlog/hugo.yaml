@@ -1,0 +1,27 @@
+baseURL: https://fr0mars.github.io/
+languageCode: en-us
+title: fr0mars
+theme: ["PaperMod"]
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
+params:
+  math: true
+  assets:
+    disableFingerprinting: true
+  customCSS:
+    - css/extended.css
+    
+  profileMode:
+    enabled: true
+    title: "fr0mars"
+    subtitle: "Low level development and Cryptanalysis"
+    imageUrl: "/images/profile.jpg"
+    imageWidth: 200
+    imageHeight: 200
+  # Make sure posts appear
+  mainSections:
+    - posts

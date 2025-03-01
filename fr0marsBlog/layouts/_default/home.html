@@ -1,0 +1,67 @@
+{{- define "main" }}
+
+{{- if (not .Site.Params.disableHLJS) }}
+{{- if .Site.Params.assets.disableHLJS }}
+{{- warnf "The `assets.disableHLJS` is deprecated. Use `disableHLJS` instead in your config." }}
+{{- end }}
+{{- end }}
+
+{{/* Profile section */}}
+<div class="profile-section">
+  {{- with .Site.Params.profileMode }}
+  <div class="profile">
+    {{- if .imageUrl }}
+    <div class="profile_inner">
+      {{- $img := resources.Get .imageUrl }}
+      {{- if $img }}
+      {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
+      {{- if hugo.IsExtended -}}
+        {{- $processableFormats = $processableFormats | append "webp" -}}
+      {{- end -}}
+      {{- $isProcessable := false -}}
+      {{- range $processableFormats -}}
+        {{- if eq (path.Ext $img.RelPermalink | lower | strings.TrimPrefix ".") . -}}
+          {{- $isProcessable = true -}}
+        {{- end -}}
+      {{- end -}}
+      {{- if $isProcessable }}
+        {{- $imgProc := $img.Fill (printf "%dx%d center" .imageWidth .imageHeight) }}
+        <img class="profile_img" src="{{ $imgProc.RelPermalink }}" alt="{{ .imageTitle | default "profile image" }}" width="{{ .imageWidth }}" height="{{ .imageHeight }}"/>
+      {{- else}}
+        <img class="profile_img" src="{{ $img.RelPermalink }}" alt="{{ .imageTitle | default "profile image" }}" width="{{ .imageWidth }}" height="{{ .imageHeight }}"/>
+      {{- end }}
+      {{- else }}
+      <img class="profile_img" src="{{ .imageUrl | absURL }}" alt="{{ .imageTitle | default "profile image" }}" width="{{ .imageWidth }}" height="{{ .imageHeight }}"/>
+      {{- end }}
+      <br> <!-- Force a line break after the image -->
+      <div class="profile_text"> <!-- New div to group title and subtitle -->
+        <h1>{{ .title }}</h1>
+        <br>
+        <span>{{ .subtitle }}</span>
+      </div>
+      </div>
+    </div>
+    {{- end}}
+    {{- end }}
+</div>
+
+
+{{/* Posts section */}}
+<article class="post-entry">
+  {{- range (where site.RegularPages "Type" "in" site.Params.mainSections) | first 5 }}
+  <article class="post-entry">
+    <header class="entry-header">
+      <h2>{{ .Title }}</h2>
+    </header>
+    <div class="entry-content">
+      <p>{{ .Summary }}</p>
+    </div>
+    <footer class="entry-footer">
+      <span>{{ .Date.Format "January 2, 2006" }}</span>
+    </footer>
+    <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+  </article>
+  {{- end }}
+</article>
+
+{{- end }}
